@@ -1,0 +1,64 @@
+{
+	"expo": {
+		"name": "xtate-hub",
+		"slug": "xtate-hub",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/logo.png",
+		"scheme": "myapp",
+		"userInterfaceStyle": "automatic",
+		"newArchEnabled": true,
+		"assetBundlePatterns": ["**/*"],
+		"fonts": [
+			{
+				"Urbanist-Regular": "./assets/fonts/Urbanist-Regular.ttf",
+				"Urbanist-Bold": "./assets/fonts/Urbanist-Bold.ttf",
+				"Urbanist-Italic": "./assets/fonts/Urbanist-Italic.ttf"
+			}
+		],
+		"ios": {
+			"jsEngine": "hermes",
+			"supportsTablet": true
+		},
+		"android": {
+			"jsEngine": "hermes",
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/logo.png",
+				"backgroundColor": "#ffffff"
+			},
+			"softwareKeyboardLayoutMode": "pan",
+			"package": "com.devabdulsalam.xtatehub",
+			"enableDangerousExperimentalLeanBuilds": true
+		},
+		"web": {
+			"bundler": "metro",
+			"output": "static",
+			"favicon": "./assets/images/favicon.png"
+		},
+		"plugins": [
+			"expo-router",
+			[
+				"expo-splash-screen",
+				{
+					"image": "./assets/icon.png",
+					"imageWidth": 200,
+					"resizeMode": "contain",
+					"backgroundColor": "#ffffff"
+				}
+			],
+			"expo-secure-store",
+			"expo-font"
+		],
+		"experiments": {
+			"typedRoutes": true
+		},
+		"extra": {
+			"router": {
+				"origin": false
+			},
+			"eas": {
+				"projectId": "e725cbdf-aded-49bc-96f9-fc088c957260"
+			}
+		}
+	}
+}
