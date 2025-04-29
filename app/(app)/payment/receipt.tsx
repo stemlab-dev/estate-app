@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '@/constants/color';
 import moment from 'moment';
 import { getFontFamily } from '@/utils';
-import generateReceiptHtml from './generateReceiptHtml';
+import generateReceiptHtml from './receiptHtml';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 

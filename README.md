@@ -68,16 +68,18 @@ https://github.com/Intellidevelopers/Bloomzon-app.git
 
  eas build -p android --profile preview
  -->
-<!-- 
-the Income would be those remited monthly, 
-payment processor, 
+<!--
+the Income would be those remited monthly,
+payment processor,
 all money paid will be paid to the PSP
 like paystack of the admin,
 super admin approve remittance,
 
 Revenue to super admin,
 
-onboarding flat fee, 
+onboarding flat fee,
 commision fee for payment by the users
 payment fee on cash out
+improve payment api
+improve receipt printing
  -->

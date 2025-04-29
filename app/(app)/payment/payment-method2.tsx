@@ -6,37 +6,37 @@ import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { router, useLocalSearchParams } from 'expo-router';
-// import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import {
 	SafeAreaView,
-	View,
-	Text,
-	Pressable,
-	Alert,
 	StyleSheet,
-	TouchableOpacity,
 	StatusBar,
 } from 'react-native';
-import { Paystack } from 'react-native-paystack-webview';
 import Toast from 'react-native-toast-message';
+import Monnify from '@adsesugh/monnify-react-native';
 
 const paymentMethod = () => {
 	const { token, profile } = useAuth();
 	const [loading, setLoading] = useState<boolean>(false);
-       const { id, amount, name } = useLocalSearchParams();
-	const [paymentInitiated, setPaymentInitiated] = useState<boolean>(false);
+	const { id, amount, name } = useLocalSearchParams();
+	const [modalVisible, setModalVisible] = useState<boolean>(true);
+	// const [paymentInitiated, setPaymentInitiated] = useState<boolean>(false);
 	const queryClient = useQueryClient();
 
 	const apiUrl = process.env.EXPO_PUBLIC_API_URI;
 	useEffect(() => {
+		console.log('Amount provided profile', profile);
 		if (!amount) {
 			router.push({
-				pathname: '/payment/payment-details',
+				pathname: '/bills',
 				params: { id, amount },
 			});
 		}
 	}, [amount]);
+	useEffect(() => {
+		// setPaymentInitiated(true);
+		setModalVisible(true);
+	}, []);
 
 	const handlePaymentSuccess = async (response: any) => {
 		Toast.show({
@@ -46,14 +46,15 @@ const paymentMethod = () => {
 		});
 		try {
 			console.log('Payment Successful', `Transaction ID: ${response}`);
-			setPaymentInitiated(false);
+			setModalVisible(false);
 			setLoading(true);
 			const { data } = await axios.post(
 				`${apiUrl}/payments`,
 				{
 					amount,
 					invoiceId: id,
-					paymantRef: response?.data?.transactionRef?.reference,
+					paymantRef: response?.transactionReference,
+					...response,
 				},
 				{
 					headers: {
@@ -87,81 +88,65 @@ const paymentMethod = () => {
 			setLoading(false);
 		}
 	};
-	const handlePaymentClose = () => {
+
+	const paymentParameters = {
+		amount: amount,
+		currency: 'NGN',
+		reference: `${new String(new Date().getTime())}`,
+		customerFullName: profile?.name,
+		customerEmail: profile?.email,
+		customerMobileNumber: profile?.phone || '09012345678',
+		apiKey: process.env.EXPO_PUBLIC_MONNIFY_API_KEY,
+		contractCode: process.env.EXPO_PUBLIC_MONNIFY_CONTRACT_CODE,
+		paymentDescription: name,
+		// mode: 'TEST',
+	};
+
+	const onSuccess = (response: any) => {
+		console.log('Payment Successful:', response);
+		handlePaymentSuccess(response);
+	};
+
+	const onError = (response: any) => {
+		console.log('Payment Failed:', response);
 		Toast.show({
 			type: 'error',
 			text1: 'Payment Closed',
 			text2: 'The payment window was closed.',
 		});
-		setPaymentInitiated(false);
+		setModalVisible(false);
+		router.navigate('/bills');
+		// Handle error scenario
+	};
+
+	const onDismiss = () => {
+		setModalVisible(!modalVisible);
+		router.navigate('/bills');
 	};
 
 	return (
 		<SafeAreaView style={styles.container}>
-			<View style={styles.header}>
-				<View
-					style={{
-						flexDirection: 'row',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						width: '100%',
-					}}
-				>
-					<TouchableOpacity onPress={() => router.navigate('/')}>
-						<AntDesign name="left" size={24} />
-					</TouchableOpacity>
-					<Text style={styles.title}>Payment Method</Text>
-					<AntDesign
-						name="search1"
-						size={24}
-						color="black"
-						style={{ opacity: 0 }}
-					/>
-				</View>
-			</View>
-
-			<View style={styles.content}>
-				<Pressable
-					onPress={() => setPaymentInitiated(true)}
-					style={styles.pressable}
-				>
-					<View style={styles.item}>
-						<View style={styles.iconContainer}>
-							<AntDesign name="creditcard" size={16} color={colors.white} />
-						</View>
-						<Text style={[styles.text, { color: colors.white }]}>
-							Pay with Paystack
-						</Text>
-					</View>
-					<View style={styles.iconContainer}>
-						<AntDesign name="right" size={18} color={colors.white} />
-					</View>
-				</Pressable>
-
-				{paymentInitiated && (
-					<Paystack
-						paystackKey={process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY} // Replace with your Paystack public key
-						amount={amount} // Amount in kobo (e.g., 500000 = ₦5,000)
-						billingEmail={profile.email} // User's email
-						activityIndicatorColor="blue"
-						onCancel={handlePaymentClose}
-						onSuccess={handlePaymentSuccess}
-						autoStart={true}
-					/>
-				)}
-			</View>
+			<Monnify
+				paymentParams={paymentParameters}
+				onSuccess={onSuccess}
+				onError={onError}
+				onDismiss={onDismiss}
+				visible={modalVisible}
+			/>
+			<LoaderModal loading={loading} />
+			<Toast />
 		</SafeAreaView>
 	);
 };
 export default paymentMethod;
 const styles = StyleSheet.create({
 	container: {
+		alignItems: 'center',
 		flex: 1,
 		paddingTop: StatusBar.currentHeight,
 		flexDirection: 'column',
 		backgroundColor: colors.white,
-		// justifyContent: 'center',
-		width: '100%',
+		justifyContent: 'center',
 	},
 	title: {
 		fontSize: 20,
@@ -171,13 +156,12 @@ const styles = StyleSheet.create({
 	},
 
 	content: {
-		// flex: 1,
 		width: '100%',
+		flex: 1,
 		padding: 10,
-		gap: 2,
 		flexDirection: 'column',
-		alignItems: 'center',
-		justifyContent: 'center',
+		// alignItems: 'center',
+		// justifyContent: 'center',
 	},
 	header: {
 		padding: 10,
@@ -200,7 +184,6 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.primary,
 		borderColor: 'gray',
 		color: 'white',
-		width: '100%',
 		// borderWidth: 1,
 		// marginBottom: 20,
 	},
@@ -212,5 +195,18 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 10,
 		paddingVertical: 12,
 		borderRadius: 10,
+	},
+	button: {
+		borderRadius: 20,
+		padding: 10,
+		elevation: 2,
+	},
+	buttonOpen: {
+		backgroundColor: '#F194FF',
+	},
+	textStyle: {
+		color: 'white',
+		fontWeight: 'bold',
+		textAlign: 'center',
 	},
 });
