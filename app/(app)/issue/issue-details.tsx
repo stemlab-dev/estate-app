@@ -21,7 +21,7 @@ import {
 	MaterialCommunityIcons,
 } from '@expo/vector-icons';
 import colors from '@/constants/color';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/context/authContext';
 import { fetchIssue } from '@/api/index';
 import LoaderModal from '@/components/LoaderModal';
@@ -31,6 +31,7 @@ import { getErrorMessage } from '@/utils/getAxiosError';
 import moment from 'moment';
 import Menu from '@/components/issue/Menu';
 import StatusBtn from '@/components/issue/StatusBtn';
+import Toast from 'react-native-toast-message';
 const apiUrl = process.env.EXPO_PUBLIC_API_URI;
 
 export default function Index() {
@@ -110,17 +111,13 @@ export default function Index() {
 			// console.log('data ghjkl;kjhkl', data);
 		}
 	}, [data]);
-	const handelSend = async () => {
-		if (!message) {
-			return;
-		}
-		try {
-			setMessage('');
-			setLoading(true);
-			const { data } = await axios.post(
+
+	const mutation = useMutation({
+		mutationFn: async (message: string) => {
+			return axios.post(
 				`${apiUrl}/reports/${id}/reply`,
 				{
-					message,
+					message
 				},
 				{
 					headers: {
@@ -128,27 +125,33 @@ export default function Index() {
 					},
 				}
 			);
-			if (data) {
-				console.log(data);
-				setReplies(() => data.report.replies);
-				queryClient.invalidateQueries({ queryKey: ['reports', id] });
-			}
-		} catch (error) {
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['reports', 'issues', id]
+			});
+			Toast.show({
+				type: 'success',
+				text1: 'Report sent',
+				text2: 'Incident reported successfully',
+			});
+			// router.push('/(app)/issues'); // Reset form after success
+		},
+		onError: (error) => {
 			const message = getErrorMessage(error);
 			console.log(message);
-			Alert.alert('Something went wrong', message || 'Something went wrong');
-			router.replace('/(app)/issues');
-		} finally {
-			setLoading(false);
-		}
-	};
-	const handelUpdate = async (status: string) => {
-		try {
-			// setIsMenuOpen(false);
-			setLoading(true);
-			toggleMenu();
-			const { data } = await axios.patch(
+			Toast.show({
+				type: 'error',
+				text1: 'Something went wrong',
+				text2: message,
+			});
+		},
+	});
+	const updateMutation = useMutation({
+		mutationFn: async (status: string) => {
+			return axios.patch(
 				`${apiUrl}/reports`,
+
 				{ reportId: id, action: status },
 				{
 					headers: {
@@ -156,11 +159,57 @@ export default function Index() {
 					},
 				}
 			);
-			if (data) {
-				console.log(data);
-				queryClient.invalidateQueries({ queryKey: ['reports', id] });
-				queryClient.invalidateQueries({ queryKey: 'reports' });
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['reports', 'issues', id],
+			});
+			Toast.show({
+				type: 'success',
+				text1: 'Report updated',
+				text2: 'Report updated successfully',
+			});
+			// router.push('/(app)/issues'); // Reset form after success
+		},
+		onError: (error) => {
+			const message = getErrorMessage(error);
+			console.log(message);
+			Toast.show({
+				type: 'error',
+				text1: 'Something went wrong',
+				text2: message,
+			});
+		},
+	});
+
+	const handelSend = async () => {
+		try {
+			if (!message) {
+				return Alert.alert('Error', 'Please enter a message');
 			}
+
+			console.log('message', message);
+			setLoading(true);
+			await mutation.mutateAsync(message);
+		} catch (error) {
+			const message = getErrorMessage(error);
+			console.log(message);
+			Toast.show({
+				type: 'error',
+				text1: 'Something went wrong',
+				text2: message,
+			});
+			router.push('/(app)/issues');
+		} finally {
+			setLoading(false);
+		}
+	};
+	const handelUpdate = async (status: string) => {
+		try {
+			setLoading(true);
+			toggleMenu();
+			console.log('status', status);
+			await updateMutation.mutateAsync(status);
 		} catch (error) {
 			const message = getErrorMessage(error);
 			console.log(message);

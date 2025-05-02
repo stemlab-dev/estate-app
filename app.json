@@ -1,7 +1,7 @@
 {
 	"expo": {
-		"name": "xtate-hub",
-		"slug": "xtate-hub",
+		"name": "xtatehub",
+		"slug": "xtatehub",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/logo.png",

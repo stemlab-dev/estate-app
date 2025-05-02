@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'column',
 		alignItems: 'center',
 		justifyContent: 'center',
-	},
+	}, 
 	header: {
 		padding: 10,
 		flexDirection: 'column',

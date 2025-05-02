@@ -4,7 +4,7 @@ import {
 	FontAwesome6,
 	MaterialIcons,
 } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
 	Alert,
@@ -28,18 +28,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const apiUrl = process.env.EXPO_PUBLIC_API_URI;
 
 const sendreport = () => {
-	const [message, setMessage] = useState('');
+	const { category, isEditId, chat } = useLocalSearchParams();
+	const [message, setMessage] = useState(chat || '');
+	console.log('category', category, isEditId, chat);
+	// useEffect(() => {
+	// 	setMessage(chat);
+	// }, [chat]);
 	const [isLoading, setIsLoading] = useState(false);
 	const { token } = useAuth();
-	const { category } = useLocalSearchParams();
 	const queryClient = useQueryClient();
 	const mutation = useMutation({
 		mutationFn: async (formData: any) => {
-			const config = {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			};
+			if (isEditId) {
+				return axios.patch(`${apiUrl}/reports/${isEditId}`, formData, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+			}
 			return axios.post(`${apiUrl}/reports`, formData, {
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -75,9 +81,9 @@ const sendreport = () => {
 			}
 			setIsLoading(true);
 			await mutation.mutateAsync({
-					category,
-					reason: message,
-				});
+				category,
+				reason: message,
+			});
 		} catch (error) {
 			const message = getErrorMessage(error);
 			console.log(message);
@@ -91,13 +97,20 @@ const sendreport = () => {
 			setIsLoading(false);
 		}
 	};
+
+	// const handelPress = (item: any) => {
+	// 	if (isEditId) {
+	// 		router.back();
+	// 		return;
+	// 	}
+	// 	router.push({
+	// 		pathname: '/(app)/report',
+	// 	});
+	// };
 	return (
 		<SafeAreaView style={styles.container}>
 			<View style={styles.header}>
-				<Pressable
-					onPress={() => router.push('/(app)/report')}
-					style={styles.cancelButton}
-				>
+				<Pressable onPress={() => router.back()} style={styles.cancelButton}>
 					<AntDesign name="left" size={24} />
 				</Pressable>
 				<Text style={styles.title}>Why are you reporting this issue?</Text>
@@ -108,7 +121,7 @@ const sendreport = () => {
 						multiline={true}
 						numberOfLines={18}
 						placeholder="Type your issue here..."
-						// value={issue}
+						value={message}
 						onChangeText={setMessage}
 					/>
 				</View>
@@ -128,7 +141,11 @@ const sendreport = () => {
 							color: message ? '#fff' : '#333',
 						}}
 					>
-						{isLoading ? 'Submitting...' : 'Submit report'}
+						{isLoading
+							? 'Submitting...'
+							: isEditId
+							? 'Edit report'
+							: 'Submit report'}
 					</Text>
 				</Pressable>
 			</View>
@@ -143,7 +160,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		paddingHorizontal: 20,
-		paddingBottom:40,
+		paddingBottom: 40,
 		backgroundColor: '#f5f5f5',
 		flexDirection: 'column',
 		justifyContent: 'space-between',

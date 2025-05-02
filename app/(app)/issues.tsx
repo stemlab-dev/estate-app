@@ -1,9 +1,9 @@
 import { Feather } from '@expo/vector-icons';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { router } from 'expo-router';
 import {
 	FlatList,
-	Image,
+	RefreshControl,
 	StatusBar,
 	StyleSheet,
 	Text,
@@ -28,11 +28,18 @@ const Index = () => {
 	const [filteredIssues, setFilteredIssues] = useState<any>([]); // Filtered users to display
 	const [query, setQuery] = useState<string>(''); // Search query
 	const [filterBy, setFilterBy] = useState<string>('All'); // Active filter
-	const { token } = useAuth();
-	const { data, isLoading } = useQuery({
+	const [refreshing, setRefreshing] = useState(false);
+	const { token, role } = useAuth();
+	const { data, isLoading, refetch } = useQuery({
 		queryKey: ['issues'],
 		queryFn: async () => fetchIssues(token),
 	});
+
+		const onRefresh = useCallback(async () => {
+			setRefreshing(true);
+			await refetch(); // This re-fetches the issues
+			setRefreshing(false);
+		}, [refetch]);
 
 	// Populate the users and filtered users list when data is fetched
 	useEffect(() => {
@@ -54,15 +61,15 @@ const Index = () => {
 
 		// Apply search filter
 		if (searchText) {
-			filtered = filtered.filter((user: any) =>
-				user.name.toLowerCase().includes(searchText.toLowerCase())
+			filtered = filtered.filter((item: any) =>
+				item?.name?.toLowerCase().includes(searchText.toLowerCase())
 			);
 		}
 
 		// Apply category filter
 		if (category !== 'All') {
-			filtered = filtered.filter(
-				(item: any) => item.status.toLowerCase() === category.toLowerCase()
+			filtered = filtered?.filter(
+				(item: any) => item?.status?.toLowerCase() === category?.toLowerCase()
 			);
 		}
 
@@ -75,7 +82,7 @@ const Index = () => {
 			params: { id },
 		});
 	};
-	const filterTypes = ['All', 'Pending', 'Resolved', 'Inprogress'];
+	const filterTypes = ['All', 'Pending', 'Resolved', 'In progress'];
 
 	return (
 		<SafeAreaView style={styles.container}>
@@ -100,6 +107,8 @@ const Index = () => {
 				keyExtractor={(item: any) => item?._id.toString()}
 				showsVerticalScrollIndicator={false}
 				data={filteredIssues}
+				refreshing={refreshing}
+				onRefresh={onRefresh}
 				renderItem={({ item }) => {
 					return (
 						<View style={styles.itemContainer} key={item?._id}>
@@ -137,7 +146,7 @@ const Index = () => {
 				)}
 			/>
 
-			{isLoading && <LoaderModal loading={isLoading}/>}
+			{isLoading && <LoaderModal loading={isLoading} />}
 		</SafeAreaView>
 	);
 };

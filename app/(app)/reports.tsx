@@ -12,14 +12,13 @@ import {
 	RefreshControl,
 } from 'react-native';
 import moment from 'moment';
-import { useAuth } from '@/context/authContext';
+import { useAuth, Role } from '@/context/authContext';
 import { useQuery } from '@tanstack/react-query';
 import colors from '@/constants/color';
 import LoaderModal from '@/components/LoaderModal';
 import MenuTab from '@/components/ui/MenuTab';
 import SearchBar from '@/components/ui/SearchBar';
 import { fetchIssues } from '@/api/index';
-import { getStatusColor } from '@/utils/getStatusColor';
 import StatusBtn from '@/components/issue/StatusBtn';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getFontFamily } from '@/utils';
@@ -30,7 +29,7 @@ const Index = () => {
 	const [query, setQuery] = useState<string>(''); // Search query
 	const [filterBy, setFilterBy] = useState<string>('All'); // Active filter
 	const [refreshing, setRefreshing] = useState(false);
-	const { token } = useAuth();
+	const { token, role } = useAuth();
 	const { data, isLoading, refetch } = useQuery({
 		queryKey: ['issues'],
 		queryFn: async () => fetchIssues(token as string),
@@ -63,39 +62,39 @@ const Index = () => {
 
 		// Apply search filter
 		if (searchText) {
-			filtered = filtered.filter((user: any) =>
-				user.name.toLowerCase().includes(searchText.toLowerCase())
+			filtered = filtered?.filter((item: any) =>
+				item?.name?.toLowerCase().includes(searchText.toLowerCase())
 			);
 		}
 
 		// Apply category filter
 		if (category === 'Payments') {
-			filtered = filtered.filter(
+			filtered = filtered?.filter(
 				(item: any) => (item: any) =>
-					item.category.toLowerCase() === 'payment issue'
+					item?.category?.toLowerCase() === 'payment issue'
 			);
 		} else if (category === 'Issues') {
-			filtered = filtered.filter(
-				(item: any) => item.category.toLowerCase() === 'official complaint'
+			filtered = filtered?.filter(
+				(item: any) => item?.category.toLowerCase() === 'official complaint'
 			);
 		} else if (category === 'Users') {
-			filtered = filtered.filter((item: any) =>
-				['billing issue', 'receipt issue'].includes(item.category.toLowerCase())
+			filtered = filtered?.filter((item: any) =>
+				['billing issue', 'receipt issue'].includes(item?.category.toLowerCase())
 			);
 		} else if (category !== 'All') {
-			filtered = filtered.filter(
-				(item: any) => item.status.toLowerCase() === category.toLowerCase()
+			filtered = filtered?.filter(
+				(item: any) => item?.status?.toLowerCase() === category?.toLowerCase()
 			);
 		}
 
 		setFilteredIssues(filtered);
 	};
 
-	const handelPress = (id: string) => {
+	const handelPress = (item: any) => {
 		router.push({
-			pathname: '/issue/issue-details',
-			// pathname: '/report/report-details',
-			params: { id },
+			// pathname: '/issue/issue-details',
+			pathname: '/report/report-details',
+			params: { ...item },
 		});
 	};
 	const filterTypes = ['All', 'Payments', 'Issues', 'Users'];
@@ -146,47 +145,44 @@ const Index = () => {
 				data={filteredIssues}
 				refreshing={refreshing}
 				onRefresh={onRefresh}
-				renderItem={({ item }) => {
-					const statusColor = getStatusColor(item?.status?.toLowerCase());
-					return (
-						<Pressable
-							key={item?._id}
-							// onPress={() => handelPress(item?._id)}
-							style={styles.itemContainer}
+				renderItem={({ item }) => (
+					<Pressable
+						key={item?._id}
+						onPress={() => handelPress(item)}
+						style={styles.itemContainer}
+					>
+						<Text
+							style={{
+								fontSize: 14,
+								fontFamily: getFontFamily('Urbanist', 600),
+								textAlign: 'left',
+							}}
 						>
-							<Text
-								style={{
-									fontSize: 14,
-									fontFamily: getFontFamily('Urbanist', 600),
-									textAlign: 'left',
-								}}
-							>
-								{item.category.toUpperCase()}
-							</Text>
-							<Text style={styles.text} numberOfLines={3} ellipsizeMode="tail">
-								{item.reason}
-							</Text>
+							{item.category.toUpperCase()}
+						</Text>
+						<Text style={styles.text} numberOfLines={3} ellipsizeMode="tail">
+							{item.reason}
+						</Text>
+						<View
+							style={{
+								flexDirection: 'row',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								marginTop: 16,
+							}}
+						>
 							<View
-								style={{
-									flexDirection: 'row',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-									marginTop: 16,
-								}}
+								style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
 							>
-								<View
-									style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-								>
-									<Feather name="clock" size={18} color="black" />
-									<Text style={styles.text}>
-										{moment(item.createdAt).format('ll')}
-									</Text>
-								</View>
-								<StatusBtn status={item?.status} />
+								<Feather name="clock" size={18} color="black" />
+								<Text style={styles.text}>
+									{moment(item.createdAt).format('ll')}
+								</Text>
 							</View>
-						</Pressable>
-					);
-				}}
+							<StatusBtn status={item?.status} />
+						</View>
+					</Pressable>
+				)}
 				ListEmptyComponent={() => (
 					<Text style={{ padding: 10, textAlign: 'center' }}>No Info</Text>
 				)}

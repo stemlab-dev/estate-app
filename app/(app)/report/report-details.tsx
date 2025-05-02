@@ -11,9 +11,24 @@ import React from 'react';
 import colors from '@/constants/color';
 import { router, useLocalSearchParams } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
+import moment from 'moment';
+import StatusBtn from '@/components/issue/StatusBtn';
 
 const index = () => {
-	const { id } = useLocalSearchParams();
+	const {
+		createdAt,
+		status,
+		category,
+		reason,
+	} = useLocalSearchParams();
+	const data = useLocalSearchParams();
+	// console.log('params', data._id);
+	const handleEditReport = () => {
+		router.navigate({
+			pathname: '/report/send-report',
+			params: { category: category, isEditId: data._id, chat: reason },
+		});
+	};
 	return (
 		<View style={styles.container}>
 			<View
@@ -24,7 +39,7 @@ const index = () => {
 					padding: 10,
 				}}
 			>
-				<TouchableOpacity onPress={() => router.back()}>
+				<TouchableOpacity onPress={() => router.push('/reports')}>
 					<AntDesign name="left" size={24} color="black" />
 				</TouchableOpacity>
 				<Text style={styles.title}>Report Details</Text>
@@ -37,13 +52,28 @@ const index = () => {
 			</View>
 
 			<View style={styles.formCard}>
-				<Text>Issue Title: {id}</Text>
-				<Pressable style={styles.continueButton} onPress={() => router.back()}>
-					<Text style={styles.buttonText}>Send Report</Text>
-				</Pressable>
-				<Pressable style={styles.continueButton} onPress={() => router.back()}>
-					<Text style={styles.buttonText}>Resolved</Text>
-				</Pressable>
+				<View style={styles.content}>
+					<Text style={styles.label}>
+						Issue Title:{' '}
+						<Text style={{ textTransform: 'capitalize' }}>{category}</Text>
+					</Text>
+					<Text style={styles.label}>
+						Report Date:
+						<Text> {moment(createdAt).format('ll')}</Text>
+					</Text>
+					<Text style={styles.label}>
+						Report Status: <StatusBtn status={status} />
+					</Text>
+					<Text style={styles.label}>Reason:</Text>
+					<View style={styles.descriptionsContainer}>
+						<Text style={styles.descriptionsText}>{reason}</Text>
+					</View>
+				</View>
+				{status !== 'resolved' && (
+					<Pressable style={styles.continueButton} onPress={handleEditReport}>
+						<Text style={styles.buttonText}>Edit Report</Text>
+					</Pressable>
+				)}
 			</View>
 		</View>
 	);
@@ -67,7 +97,7 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold',
 	},
 	continueButton: {
-		backgroundColor: colors.black,
+		backgroundColor: colors.primary,
 		paddingVertical: 15,
 		borderRadius: 10,
 		alignItems: 'center',
@@ -78,5 +108,24 @@ const styles = StyleSheet.create({
 		padding: 10,
 		marginTop: 10,
 		backgroundColor: 'white',
+	},
+	content: {
+		padding: 5,
+	},
+	label: {
+		padding: 5,
+		// color: '#fff',
+		fontWeight: 'bold',
+	},
+	descriptionsContainer: {
+		padding: 10,
+		backgroundColor: '#fff',
+		borderRadius: 5,
+		borderColor: colors.grey,
+		borderWidth: 1,
+	},
+	descriptionsText: {
+		fontSize: 16,
+		minHeight: 250,
 	},
 });
