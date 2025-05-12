@@ -43,7 +43,7 @@ const App = () => {
 	const screens = [
 		{ name: 'Payments', screen: 'PaymentsScreen' },
 		{ name: 'Payment Setup', screen: 'NewPaymentScreen' },
-		{ name: 'Remiders', screen: 'ReminderScreen' },
+		{ name: 'Reminders', screen: 'ReminderScreen' },
 	];
 	const [screen, setScreen] = useState(screens[0].screen);
 	useEffect(() => {

@@ -214,6 +214,10 @@ export const bankItems = [
 ];
 export const frequencies = [
 	{
+		label: 'One Time',
+		value: 'One Time',
+	},
+	{
 		label: 'Weekly',
 		value: 'Weekly',
 	},

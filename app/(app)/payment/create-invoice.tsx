@@ -16,7 +16,6 @@ import {
 	userCheckOptions,
 	frequencies,
 	types,
-	statues,
 } from '@/constants/data';
 import axios from 'axios';
 import colors from '@/constants/color';
@@ -59,7 +58,6 @@ const Account = () => {
 		amount: '',
 		frequency: '',
 		type: category || '',
-		status: '',
 		dueDate: '',
 	};
 	const [formData, setFormData] = useState(clearFeilds);
@@ -68,14 +66,13 @@ const Account = () => {
 		amount: '',
 		frequency: '',
 		type: '',
-		status: '',
 	});
 
 	const handleValidate = useCallback(() => {
 		const newErrors = {};
 		let isValid = true;
 
-		const requiredFields = ['name', 'amount', 'frequency', 'type', 'status'];
+		const requiredFields = ['name', 'amount', 'frequency', 'type'];
 		requiredFields.forEach((field) => {
 			if (!formData[field]?.trim()) {
 				newErrors[field] = `${
@@ -95,7 +92,7 @@ const Account = () => {
 			setLoading(true);
 			const { data } = await axios.post(
 				`${apiUrl}/admins/dues`,
-				{ ...formData, members },
+				{ ...formData, status: 'pending', members },
 				{ headers: { Authorization: `Bearer ${token}` } }
 			);
 			console.log('data received', data);
@@ -224,15 +221,6 @@ const Account = () => {
 							setFormData((prev) => ({ ...prev, type: value }))
 						}
 						error={errors.type}
-					/>
-					<SelectField
-						label="Status"
-						data={statues}
-						value={formData.status}
-						setValue={(value) =>
-							setFormData((prev) => ({ ...prev, status: value }))
-						}
-						error={errors.status}
 					/>
 				</View>
 				<Button

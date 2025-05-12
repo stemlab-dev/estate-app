@@ -4,6 +4,7 @@ import {
 	Text,
 	TouchableOpacity,
 	View,
+	ScrollView,
 } from 'react-native';
 import React from 'react';
 import { AntDesign, Feather, Ionicons, Octicons } from '@expo/vector-icons';
@@ -14,7 +15,7 @@ import colors from '@/constants/color';
 const Admin = ({ data }: { data: any }) => {
 	const iconSize = 22;
 	return (
-		<View style={styles.container}>
+		<ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
 			<View style={styles.menuContainer}>
 				<TouchableOpacity
 					onPress={() => router.navigate('/users')}
@@ -103,7 +104,7 @@ const Admin = ({ data }: { data: any }) => {
 					))}
 				</View>
 			</View>
-		</View>
+		</ScrollView>
 	);
 };
 

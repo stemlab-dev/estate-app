@@ -126,15 +126,15 @@ export default function HomeScreen() {
 						{greeting()} {profile?.name || 'Guest'}
 					</Text>
 				</View>
-				<Info
-					role={role || 'Tenant'}
-					id={profile?.uniqueId || '0009'}
-					house={'No. 3 Lane II'}
-				/>
 				{role === Role.ADMIN ? (
 					<AdminScreen data={data} />
 				) : (
 					<>
+						<Info
+							role={role || 'Tenant'}
+							id={profile?.uniqueId || '0009'}
+							house={'No. 3 Lane II'}
+						/>
 						<View style={styles.menuContainer}>
 							{menuItems.map((item, index) => (
 								<Pressable

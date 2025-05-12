@@ -98,13 +98,20 @@ const index = () => {
 				>
 					{name}
 				</Text>
-				<View style={{ ...styles.formCard,  flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-
-				<Text>Status: {status}</Text>
-				<Text>Members: {members} </Text>
+				<View
+					style={{
+						...styles.formCard,
+						flexDirection: 'row',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						gap: 10,
+,					}}
+				>
+					<Text>Status: {status}</Text>
+					<Text>Members: {members} </Text>
 				</View>
-				<Text>Address: {address}</Text>
-				<Text>Description: {description}</Text>
+				<Text style={styles.text}>Address: {address}</Text>
+				<Text style={styles.text}>Description: {description}</Text>
 				<View style={styles.buttons}>
 					<Pressable style={styles.button} onPress={handleRequest}>
 						<Text style={styles.buttonText}>Send request</Text>
@@ -135,6 +142,9 @@ const styles = StyleSheet.create({
 		fontWeight: '600',
 		fontSize: 18,
 		textAlign: 'center',
+	},
+	text: {
+		paddingTop: 10,
 	},
 	buttonText: {
 		color: '#fff',

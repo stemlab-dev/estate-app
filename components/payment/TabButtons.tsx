@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
 	},
 	buttonText: {
 		color: '#FFF',
-		fontSize: 16,
+		fontSize: 12,
 		textAlign: 'center',
 	},
 });
