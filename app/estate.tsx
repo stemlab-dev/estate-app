@@ -104,8 +104,7 @@ const index = () => {
 						flexDirection: 'row',
 						justifyContent: 'space-between',
 						alignItems: 'center',
-						gap: 10,
-,					}}
+						gap: 10,				}}
 				>
 					<Text>Status: {status}</Text>
 					<Text>Members: {members} </Text>

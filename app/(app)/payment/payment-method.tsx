@@ -24,7 +24,7 @@ import Toast from 'react-native-toast-message';
 const paymentMethod = () => {
 	const { token, profile } = useAuth();
 	const [loading, setLoading] = useState<boolean>(false);
-       const { id, amount, name } = useLocalSearchParams();
+	const { id, amount, name } = useLocalSearchParams();
 	const [paymentInitiated, setPaymentInitiated] = useState<boolean>(false);
 	const queryClient = useQueryClient();
 
@@ -45,7 +45,12 @@ const paymentMethod = () => {
 			text2: 'Payment Successful 👋',
 		});
 		try {
-			console.log('Payment Successful', `Transaction ID: ${response}`);
+			console.log(
+				'Payment Successful',
+				`paymantRef: ${response?.data?.transactionRef?.reference}`
+			);
+			console.log('Payment Successful', { ...response?.data?.transactionRef });
+
 			setPaymentInitiated(false);
 			setLoading(true);
 			const { data } = await axios.post(
@@ -178,7 +183,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'column',
 		alignItems: 'center',
 		justifyContent: 'center',
-	}, 
+	},
 	header: {
 		padding: 10,
 		flexDirection: 'column',
