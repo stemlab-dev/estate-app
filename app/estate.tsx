@@ -21,7 +21,8 @@ import LoaderModal from '@/components/LoaderModal';
 const apiUrl = process.env.EXPO_PUBLIC_API_URI;
 
 const index = () => {
-	const { _id, logo, name, members, description, status, address} = useLocalSearchParams();
+	const { _id, logo, name, members, description, status, address } =
+		useLocalSearchParams();
 	const { profile, role, token } = useAuth();
 	const [loading, setLoading] = useState<boolean>(false);
 	const queryClient = useQueryClient();
@@ -45,7 +46,7 @@ const index = () => {
 				queryKey: ['index', 'payments', 'reports', 'notifications'],
 			});
 		} catch (error) {
-			console.error('Error creating invoice:', error);
+			console.error('Error sending request:', error);
 			const message = getErrorMessage(error);
 			Toast.show({
 				type: 'error',
@@ -104,7 +105,8 @@ const index = () => {
 						flexDirection: 'row',
 						justifyContent: 'space-between',
 						alignItems: 'center',
-						gap: 10,				}}
+						gap: 10,
+					}}
 				>
 					<Text>Status: {status}</Text>
 					<Text>Members: {members} </Text>
