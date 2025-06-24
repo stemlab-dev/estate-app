@@ -81,5 +81,5 @@ onboarding flat fee,
 commision fee for payment by the users
 payment fee on cash out
 improve payment api
-improve receipt printing
+improve receipt printing ui.
  -->

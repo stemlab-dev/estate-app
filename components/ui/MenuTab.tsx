@@ -1,10 +1,4 @@
-import {
-	Pressable,
-	StyleSheet,
-	Text,
-	ScrollView,
-	View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, ScrollView, View } from 'react-native';
 import React from 'react';
 import colors from '@/constants/color';
 import { getFontFamily } from '@/utils';
@@ -32,7 +26,7 @@ const MenuTab = ({
 				contentContainerStyle={{
 					width: '100%',
 					flex: 1,
-					gap: 5,
+					gap: 2,
 				}}
 			>
 				{filterTypes.map((item, index) => (
@@ -48,7 +42,7 @@ const MenuTab = ({
 						<Text
 							style={{
 								...styles.text,
-								fontSize: 14,
+								fontSize: 12,
 								fontWeight: 'semibold',
 								color: filterBy === item ? 'white' : colors.dark,
 							}}
@@ -67,18 +61,15 @@ export default MenuTab;
 const styles = StyleSheet.create({
 	text: {
 		fontSize: 14,
-		fontFamily:getFontFamily("DMSans",600),		
+		fontFamily: getFontFamily('DMSans', 600),
 	},
 	menuBtn: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
-		gap: 4,
 		flex: 1,
 		width: 'auto',
-		paddingVertical: 8,
 		height: 44,
-		paddingHorizontal: 10,
 		borderRadius: 8,
 	},
 });
